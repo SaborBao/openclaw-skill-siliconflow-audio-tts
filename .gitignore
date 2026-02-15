@@ -1,0 +1,5 @@
+# Ignore all generated audio files
+*.mp3
+
+# SiliconFlow TTS temp outputs
+/tmp/
