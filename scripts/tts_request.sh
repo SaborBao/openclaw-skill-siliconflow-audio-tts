@@ -25,8 +25,8 @@ fi
 model="FunAudioLLM/CosyVoice2-0.5B"
 endpoint="https://api.siliconflow.cn/v1/audio/speech"
 
-if [[ -z "${SILICONFLOW_API_KEY:-}" ]]; then
-  echo "错误: 未检测到 SILICONFLOW_API_KEY 环境变量，请先配置 SiliconFlow 的 API Key。" >&2
+if [[ -z "${OPENCLAW_SILICONFLOW_API_KEY:-}" ]]; then
+  echo "错误: 未检测到 OPENCLAW_SILICONFLOW_API_KEY 环境变量，请先配置 SiliconFlow 的 API Key。" >&2
   exit 2
 fi
 
@@ -50,7 +50,7 @@ http_status="$(
     -w "%{http_code}" \
     --output "$output_file" \
     --request POST "$endpoint" \
-    -H "Authorization: Bearer $SILICONFLOW_API_KEY" \
+    -H "Authorization: Bearer $OPENCLAW_SILICONFLOW_API_KEY" \
     -H "Content-Type: application/json" \
     --data "{ \"model\": \"$model\", \"input\": \"${text//\"/\\\"}\", \"voice\": \"$voice\", \"response_format\": \"mp3\" }" \
     2>"$tmp_err"

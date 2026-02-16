@@ -24,26 +24,20 @@ siliconflow-audio-tts/
 ## 使用前准备
 
 1. 在 SiliconFlow 控制台创建 API Key。
-2. 在本机设置环境变量 `SILICONFLOW_API_KEY`，推荐写入：
+2. 在本机设置环境变量 `OPENCLAW_SILICONFLOW_API_KEY`，**统一写入**：
 
    ```bash
-   mkdir -p ~/.config/openclaw/secrets
-   chmod 700 ~/.config/openclaw/secrets
+   mkdir -p ~/.openclaw
+   chmod 700 ~/.openclaw
 
-   cat > ~/.config/openclaw/secrets/siliconflow.env <<'EOF'
-   SILICONFLOW_API_KEY=your_api_key_here
+   cat >> ~/.openclaw/.env <<'EOF'
+   OPENCLAW_SILICONFLOW_API_KEY=your_api_key_here
    EOF
 
-   chmod 600 ~/.config/openclaw/secrets/siliconflow.env
+   chmod 600 ~/.openclaw/.env
    ```
 
-3. 使用前加载：
-
-   ```bash
-   set -a
-   . ~/.config/openclaw/secrets/siliconflow.env
-   set +a
-   ```
+3. 说明：OpenClaw 会自动加载 `~/.openclaw/.env`（无需手动 `source`）。
 
 ## 命令行用法
 

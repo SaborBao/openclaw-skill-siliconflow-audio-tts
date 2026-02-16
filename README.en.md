@@ -22,26 +22,20 @@ siliconflow-audio-tts/
 ## Setup
 
 1. Create an API key in SiliconFlow console.
-2. Set `SILICONFLOW_API_KEY` on your machine, for example:
+2. Set `OPENCLAW_SILICONFLOW_API_KEY` on your machine (standardized location):
 
    ```bash
-   mkdir -p ~/.config/openclaw/secrets
-   chmod 700 ~/.config/openclaw/secrets
+   mkdir -p ~/.openclaw
+   chmod 700 ~/.openclaw
 
-   cat > ~/.config/openclaw/secrets/siliconflow.env <<'EOF'
-   SILICONFLOW_API_KEY=your_api_key_here
+   cat >> ~/.openclaw/.env <<'EOF'
+   OPENCLAW_SILICONFLOW_API_KEY=your_api_key_here
    EOF
 
-   chmod 600 ~/.config/openclaw/secrets/siliconflow.env
+   chmod 600 ~/.openclaw/.env
    ```
 
-3. Load it before running scripts:
-
-   ```bash
-   set -a
-   . ~/.config/openclaw/secrets/siliconflow.env
-   set +a
-   ```
+3. Note: OpenClaw loads `~/.openclaw/.env` automatically on startup (no manual `source` needed).
 
 ## Usage
 

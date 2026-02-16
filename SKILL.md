@@ -1,85 +1,80 @@
 ---
 name: siliconflow-audio-tts
-description: 使用 SiliconFlow 的 `/v1/audio/speech` 接口，通过 `FunAudioLLM/CosyVoice2-0.5B` 把文字合成为语音（支持 claire/anna/bella 等系统音色）。当你需要把文本变成语音播报，并且已经配置好了 SiliconFlow 的转写 API Key 时，使用这个 skill。
+description: Text-to-speech (TTS)
+homepage: https://api.siliconflow.cn
+user-invocable: true
+metadata: { "openclaw": { "emoji": "🔊", "primaryEnv": "OPENCLAW_SILICONFLOW_API_KEY", "requires": { "env": ["OPENCLAW_SILICONFLOW_API_KEY"] } } }
 ---
 
-# SiliconFlow 文本转语音（TTS）
+# SiliconFlow Text-to-Speech (TTS)
 
-用这个 skill，可以调用 SiliconFlow 的 `FunAudioLLM/CosyVoice2-0.5B` 模型，把一段文本合成到本地 mp3 文件里。默认音色是 **claire（温柔女声）**。
+Use this skill to call SiliconFlow `FunAudioLLM/CosyVoice2-0.5B` and synthesize text into a local mp3 file. Default voice: **claire**.
 
-## 凭证复用说明
+## Credential reuse
 
-- 本 skill 复用 `siliconflow-audio-transcribe` 的同一套 Key。
-- 环境变量：`SILICONFLOW_API_KEY`
-- 推荐把 Key 写在：`~/.config/openclaw/secrets/siliconflow.env`
+- This skill reuses the same API key as `siliconflow-audio-transcribe`.
+- Environment variable: `OPENCLAW_SILICONFLOW_API_KEY`
+- **Required location (standardized): `~/.openclaw/.env`**
 
-示例：
+Example:
 ```bash
-mkdir -p ~/.config/openclaw/secrets
-chmod 700 ~/.config/openclaw/secrets
-cat > ~/.config/openclaw/secrets/siliconflow.env <<'EOF'
-SILICONFLOW_API_KEY=你的_API_KEY_放这里
+mkdir -p ~/.openclaw
+chmod 700 ~/.openclaw
+cat > ~/.openclaw/.env <<'EOF'
+OPENCLAW_SILICONFLOW_API_KEY=你的_API_KEY_放这里
 EOF
-chmod 600 ~/.config/openclaw/secrets/siliconflow.env
+chmod 600 ~/.openclaw/.env
 ```
 
-使用前加载：
-```bash
-set -a
-. ~/.config/openclaw/secrets/siliconflow.env
-set +a
-```
+Notes:
+- OpenClaw loads `~/.openclaw/.env` automatically on startup (no manual `source` needed).
 
-## 使用流程
+## Workflow
 
-1. 确认 `SILICONFLOW_API_KEY` 已经生效（或按上面方式 source `.env`）。
-2. 在 skill 目录下运行脚本：
+1. Ensure `OPENCLAW_SILICONFLOW_API_KEY` is set (via `~/.openclaw/.env`).
+2. Run the script from the skill directory:
    ```bash
    cd skills/siliconflow-audio-tts
-   scripts/tts_request.sh "要朗读的文本..." [音色] [输出文件名]
+   scripts/tts_request.sh "Text to speak..." [voice] [output_filename]
    ```
-3. 脚本成功则返回码为 `0`，并在当前目录生成 mp3 文件；失败则返回非 0，并在终端输出错误原因。
+3. On success, exit code is `0` and an mp3 file is written; on failure, exit code is non-zero and the error is printed.
 
-## 脚本约定
+## Script contract
 
-- 入口脚本：`scripts/tts_request.sh`
-- 请求地址：`https://api.siliconflow.cn/v1/audio/speech`
-- 默认模型：`FunAudioLLM/CosyVoice2-0.5B`
-- 默认音色：`FunAudioLLM/CosyVoice2-0.5B:claire`（温柔女声）
-- 默认格式：`mp3`
-- 参数：
-  - 必选：要合成的文本（第 1 个位置参数）
-  - 可选：音色（第 2 个位置参数），例如：
+- Entry script: `scripts/tts_request.sh`
+- Endpoint: `https://api.siliconflow.cn/v1/audio/speech`
+- Default model: `FunAudioLLM/CosyVoice2-0.5B`
+- Default voice: `FunAudioLLM/CosyVoice2-0.5B:claire`
+- Default format: `mp3`
+- Args:
+  - Required: text to synthesize (positional arg #1)
+  - Optional: voice (positional arg #2), e.g.
     - `FunAudioLLM/CosyVoice2-0.5B:claire`
     - `FunAudioLLM/CosyVoice2-0.5B:anna`
     - `FunAudioLLM/CosyVoice2-0.5B:bella`
     - `FunAudioLLM/CosyVoice2-0.5B:alex`
-  - 可选：输出文件名（第 3 个位置参数），默认：`output.mp3`
-- 退出码：
-  - `0`：请求成功，音频文件非空写入成功
-  - 非 0：参数错误、环境变量缺失、HTTP 非 200 或返回体异常等
+  - Optional: output filename (positional arg #3), default: `output.mp3`
+- Exit codes:
+  - `0`: success (non-empty audio file written)
+  - non-zero: validation error, missing env var, non-200 HTTP response, etc.
 
-## 示例命令
+## Examples
 
 ```bash
-# 1）加载 Key（和转写 skill 一样）
-set -a && . ~/.config/openclaw/secrets/siliconflow.env && set +a
+# 1) Ensure API key is present in ~/.openclaw/.env (auto-loaded by OpenClaw)
 cd /home/chen/.openclaw/workspace/skills/siliconflow-audio-tts
 
-# 2）使用默认温柔女声 claire，合成一段开心语气的中文
-scripts/tts_request.sh "<|happy|>太棒了！听到这个消息我真的非常激动！" \
+# 2) Chinese, default voice (claire)
+scripts/tts_request.sh "<|happy|>Happy New Year, Captain!" \
   "FunAudioLLM/CosyVoice2-0.5B:claire" happy.mp3
 
-# 3）用 anna 读一段英文
+# 3) English, specify a different voice
 scripts/tts_request.sh "Good evening, captain. All systems are running smoothly." \
   "FunAudioLLM/CosyVoice2-0.5B:anna" anna_en.mp3
-
-# 4）只给文本，其他用默认（claire + output.mp3）
-scripts/tts_request.sh "头儿，现在是 SiliconFlow 的 CosyVoice2 在给你读这句话。"
 ```
 
-## 其他说明
+## Notes
 
-- 成功时接口直接返回二进制音频流，脚本把它保存为 mp3 文件。
-- 失败时接口返回 JSON 错误，脚本会把错误文本打到终端，方便排查。
-- 可以在上层工作流中读取生成的 mp3 路径，把文件继续用在 Telegram 语音、播放器等场景中。
+- On success, the API returns a binary audio stream and the script saves it as an mp3.
+- On failure, the API returns a JSON error; the script prints the raw error for debugging.
+- You can reuse the generated mp3 in downstream workflows (e.g., sending a Telegram voice message).
